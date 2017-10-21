@@ -25,6 +25,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "cateval.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -54,7 +55,7 @@ namespace Tablebases {
 namespace TB = Tablebases;
 
 using std::string;
-using Eval::evaluate;
+using CatEval::evaluate;
 using namespace Search;
 
 namespace {
