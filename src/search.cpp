@@ -37,6 +37,8 @@
 #include "uci.h"
 #include "syzygy/tbprobe.h"
 
+int stats_factor = 20000;
+
 namespace Search {
 
   LimitsType Limits;
@@ -957,8 +959,6 @@ moves_loop: // When in check search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
-              int stats_factor = 20000;
-              TUNE(stats_factor);
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / stats_factor) * ONE_PLY);
           }
 
@@ -1635,3 +1635,4 @@ void Tablebases::filter_root_moves(Position& pos, Search::RootMoves& rootMoves) 
                    : TB::Score < VALUE_DRAW ? -VALUE_MATE + MAX_PLY + 1
                                             :  VALUE_DRAW;
 }
+TUNE(stats_factor);
