@@ -37,7 +37,7 @@
 #include "uci.h"
 #include "syzygy/tbprobe.h"
 
-int stats_factor = 20000;
+int stats_factor = 19187;
 
 namespace Search {
 
