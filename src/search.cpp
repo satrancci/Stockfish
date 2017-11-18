@@ -57,6 +57,8 @@ using std::string;
 using Eval::evaluate;
 using namespace Search;
 
+int lmr_t[]={10 ,3, 7, 8, 7, 35, 20, 8 };
+
 namespace {
 
   // Different node types, used as a template parameter
@@ -853,7 +855,7 @@ moves_loop: // When in check search starts from here
       {
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(5000)))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(500*lmr_t[0])))
           {
               // Move count based pruning
               if (moveCountPruning)
@@ -866,23 +868,23 @@ moves_loop: // When in check search starts from here
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
 
               // Countermoves based pruning
-              if (   lmrDepth < 3
+              if (   lmrDepth < lmr_t[1]
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node
-              if (   lmrDepth < 7
+              if (   lmrDepth < lmr_t[2]
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + lmr_t[7] *32 + lmr_t[6] * 10 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE
-              if (   lmrDepth < 8
-                  && !pos.see_ge(move, Value(-35 * lmrDepth * lmrDepth)))
+              if (   lmrDepth < lmr_t[3]
+                  && !pos.see_ge(move, Value(-lmr_t[5] * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (    depth < 7 * ONE_PLY
+          else if (    depth < lmr_t[4] * ONE_PLY
                    && !extension
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                   continue;
@@ -1633,3 +1635,4 @@ void Tablebases::filter_root_moves(Position& pos, Search::RootMoves& rootMoves) 
                    : TB::Score < VALUE_DRAW ? -VALUE_MATE + MAX_PLY + 1
                                             :  VALUE_DRAW;
 }
+TUNE(lmr_t);
