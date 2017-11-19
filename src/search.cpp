@@ -853,7 +853,7 @@ moves_loop: // When in check search starts from here
       {
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(5000)))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(4500)))
           {
               // Move count based pruning
               if (moveCountPruning)
@@ -872,17 +872,17 @@ moves_loop: // When in check search starts from here
                   continue;
 
               // Futility pruning: parent node
-              if (   lmrDepth < 7
+              if (   lmrDepth < 8
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 330 + 160 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE
-              if (   lmrDepth < 8
-                  && !pos.see_ge(move, Value(-35 * lmrDepth * lmrDepth)))
+              if (   lmrDepth < 9
+                  && !pos.see_ge(move, Value(-41 * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (    depth < 7 * ONE_PLY
+          else if (    depth < 9 * ONE_PLY
                    && !extension
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                   continue;
