@@ -872,17 +872,17 @@ moves_loop: // When in check search starts from here
                   continue;
 
               // Futility pruning: parent node
-              if (   lmrDepth < 7
+              if (   lmrDepth < 9
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 347 + 183 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE
-              if (   lmrDepth < 8
-                  && !pos.see_ge(move, Value(-35 * lmrDepth * lmrDepth)))
+              if (   lmrDepth < 10
+                  && !pos.see_ge(move, Value(-42 * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (    depth < 7 * ONE_PLY
+          else if (    depth < 9 * ONE_PLY
                    && !extension
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                   continue;
