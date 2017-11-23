@@ -885,7 +885,7 @@ namespace {
     }
 
     // Add random value
-    const int eps = 22;
+    const int eps = 11;
     v += pos.key() % (2 * eps + 1) - eps;
 
     return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo; // Side to move point of view
