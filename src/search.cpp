@@ -80,10 +80,7 @@ namespace {
   }
 
   // History and stats update bonus, based on depth
-  int stat_bonus(Depth depth) {
-    int d = depth / ONE_PLY;
-    return d > 17 ? 0 : d * d + 2 * d - 2;
-  }
+  int stat_bonus[DEPTH_MAX+(int)ONE_PLY];
 
   // Skill structure is used to implement strength limit
   struct Skill {
@@ -164,6 +161,9 @@ void Search::init() {
       FutilityMoveCounts[0][d] = int(2.4 + 0.74 * pow(d, 1.78));
       FutilityMoveCounts[1][d] = int(5.0 + 1.00 * pow(d, 2.00));
   }
+
+  for (int d = 0; d < DEPTH_MAX+ONE_PLY ; d++)
+      stat_bonus[d] = (int)(2.4388441909172809E+02L * (1.0 - exp(-1.0 * 2.0850584798078381E-01L * (double)d)));
 }
 
 
@@ -579,16 +579,16 @@ namespace {
             if (ttValue >= beta)
             {
                 if (!pos.capture_or_promotion(ttMove))
-                    update_stats(pos, ss, ttMove, nullptr, 0, stat_bonus(depth));
+                    update_stats(pos, ss, ttMove, nullptr, 0, stat_bonus[depth]);
 
                 // Extra penalty for a quiet TT move in previous ply when it gets refuted
                 if ((ss-1)->moveCount == 1 && !pos.captured_piece())
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus[depth + ONE_PLY]);
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
-                int penalty = -stat_bonus(depth);
+                int penalty = -stat_bonus[depth];
                 thisThread->mainHistory.update(pos.side_to_move(), ttMove, penalty);
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
@@ -1081,19 +1081,19 @@ moves_loop: // When in check search starts from here
     {
         // Quiet best move: update move sorting heuristics
         if (!pos.capture_or_promotion(bestMove))
-            update_stats(pos, ss, bestMove, quietsSearched, quietCount, stat_bonus(depth));
+            update_stats(pos, ss, bestMove, quietsSearched, quietCount, stat_bonus[depth]);
         else
-            update_capture_stats(pos, bestMove, capturesSearched, captureCount, stat_bonus(depth));
+            update_capture_stats(pos, bestMove, capturesSearched, captureCount, stat_bonus[depth]);
 
         // Extra penalty for a quiet TT move in previous ply when it gets refuted
         if ((ss-1)->moveCount == 1 && !pos.captured_piece())
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus[depth + ONE_PLY]);
     }
     // Bonus for prior countermove that caused the fail low
     else if (    depth >= 3 * ONE_PLY
              && !pos.captured_piece()
              && is_ok((ss-1)->currentMove))
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus[depth]);
 
     if (!excludedMove)
         tte->save(posKey, value_to_tt(bestValue, ss->ply),
