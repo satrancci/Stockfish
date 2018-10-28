@@ -3,13 +3,14 @@ import platform
 import sys
 import os
 
-args=[]
+args=['-Wno-narrowing']
+
 if '64bit' in platform.architecture():
   args.append('-DIS_64BIT')
 
 if (sys.platform == 'darwin' and [int(x) for x in os.uname()[2].split('.')] >= [11, 0, 0]):
             # special things for clang
-    args.append('-Wno-error=unused-command-line-argument-hard-error-in-future')
+    args.append('-Wno-narrowing','-Wno-error=unused-command-line-argument-hard-error-in-future')
 module1 = Extension('stockfish',
                     sources = ['benchmark.cpp', 'evaluate.cpp', 'movepick.cpp', 'search.cpp', 'ucioption.cpp',
                                'bitbase.cpp', 'main.cpp', 'notation.cpp', 'thread.cpp', 'bitboard.cpp', 'material.cpp',
